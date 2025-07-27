@@ -1,0 +1,10 @@
+.vscode/
+notebooks/
+*.egg-info/
+*__.egg__
+__pycache__/
+*.py[cod]
+agents/
+saved_plots/
+.DS_Store
+*.egg
