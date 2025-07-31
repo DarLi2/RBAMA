@@ -54,6 +54,17 @@ adapted to run in the bridge-world environment for direct comparative evaluation
    python scripts/eval/reasoning.py bridge1_v1modularR3000W30000I3000R100 --state_reset '[24, 31, 49, 49, 34]'
    ```
 
+## Results
+
+<img src="person_on_bridge.png" alt="My Screenshot" width="200"/>
+<img src="reasoning_waiting.png" alt="My Screenshot" width="200"/>
+
+<img src="drowning_person.png" alt="My Screenshot" width="200"/>
+<img src="reasoning_rescuing.png" alt="My Screenshot" width="200"/>
+
+<img src="moral_dilemma.png" alt="My Screenshot" width="200"/>
+<img src="reasoning_conflicted.png" alt="My Screenshot" width="200"/>
+
 <!-- If making the code public add citation(?)
 
 ## 📖 Citation
