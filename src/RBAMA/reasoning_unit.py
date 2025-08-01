@@ -54,15 +54,14 @@ class ReasoningUnit():
                     lower_order.add(rule)
                 
         nx.set_edge_attributes(self.G, {(reason[0], reason[1]): {'lower_order': lower_order}})
-        self.log_edges_with_data()
+        self.log_reason_theory()
 
     """
     log the agent's current reason theory
     """
-    def log_edges_with_data(self):
+    def log_reason_theory(self):
         for u, v, priority in self.G.edges(data=True):
-            self.logger.info(f"Updated Edges: \nEdge from {u} to {v} with priority order: {priority}")
-
+            self.logger.info(f"Reasons: \nEdge from {u} to {v} with priority order: {priority}")
 
     def powerset(self, iterable):
         s = list(iterable)

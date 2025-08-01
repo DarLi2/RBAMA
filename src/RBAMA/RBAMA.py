@@ -70,7 +70,8 @@ def save_agent(agent, agent_name):
         "policy_state_dict": agent.policy_dqn.state_dict(),
         "target_state_dict": agent.target_dqn.state_dict(),
         "env": agent.env,
-        "agent_type": agent.agent_type
+        "agent_type": agent.agent_type,
+        "reasoning_unit": agent.reasoning_unit
     }
     if getattr(agent.reasoning_unit, "guard_net", None):
         save_dict["reasoning_unit_guard_state_dict"] = agent.reasoning_unit.guard_net.policy_dqn.state_dict()
