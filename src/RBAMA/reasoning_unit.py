@@ -5,7 +5,7 @@ from sympy import symbols, And, Not
 from sympy.logic.inference import satisfiable
 import torch
 from src.RBAMA import rescuing_net
-from src.RBAMA import waiting_net
+from src.RBAMA import guard_net
 from src.environments import registered_versions
 import numpy as np
 import logging
@@ -15,7 +15,7 @@ class ReasoningUnit():
         super().__init__()
         self.G = nx.DiGraph()
         self.action_space = action_space
-        self.waiting_net =  waiting_net.On_Bridge(env)
+        self.waiting_net =  guard_net.Guard(env)
         self.threshold_waiting = 0.8
         self.rescuing_net = rescuing_net.Rescuing(env)
         self.chosen_scenario = None

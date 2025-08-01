@@ -1,6 +1,5 @@
 import gymnasium as gym
 import numpy as np
-import matplotlib.pyplot as plt
 import random
 import torch
 from tqdm import tqdm
@@ -63,9 +62,9 @@ class RBAMA():
         self.agent_type = "RBAMA"
 
         #set up hyperparameters for DRL
-        self.learning_rate_a = lr        
-        self.discount_factor_g = 0.9            
-        self.network_sync_rate = sync_rate       
+        self.lr = lr        
+        self.discount = 0.9            
+        self.sr = sync_rate       
         self.replay_memory_size = replay_memory_size     
         self.mini_batch_size = mini_batch_size          
 
@@ -103,11 +102,11 @@ class RBAMA():
         k = 5 # decay rate for epsilon
         memory = drl.ReplayMemory(self.replay_memory_size)
 
-        # initially syn the policy and the target network (same parameters)
+        # initially sync the policy and the target network (same parameters)
         self.target_dqn.load_state_dict(self.policy_dqn.state_dict())
 
         # set up the optimizer
-        self.optimizer = torch.optim.Adam(self.policy_dqn.parameters(), lr=self.learning_rate_a)
+        self.optimizer = torch.optim.Adam(self.policy_dqn.parameters(), lr=self.lr)
 
         rewards_per_episode = np.zeros(episodes)
 
@@ -154,7 +153,7 @@ class RBAMA():
                     self.optimize(mini_batch) 
                 
                 # sync policy and target network
-                if step_count > self.network_sync_rate:
+                if step_count > self.sr:
                     self.target_dqn.load_state_dict(self.policy_dqn.state_dict())
                     step_count=0
 
@@ -166,11 +165,10 @@ class RBAMA():
 
         env.close()
 
-        sum_rewards = np.zeros(episodes)
-        for x in range(episodes):
-            sum_rewards[x] = np.sum(rewards_per_episode[max(0, x-100):(x+1)])
+        #sum_rewards = np.zeros(episodes)
+        sum_rewards = np.array([np.sum(rewards_per_episode[max(0, x-200):x+1]) for x in range(episodes)])
 
-        plot_training_progress(sum_rewards, agent_name, getattr(self, 'env_name', None))
+        plot_training_progress(sum_rewards, agent_name)
 
     """
     training loop for the instrumental policy (shielded)
@@ -181,13 +179,14 @@ class RBAMA():
             env = self.env
         
         epsilon = 1 # 0: no randomness; 1:completely random
+        k=5 # decay rate for epsilon
         memory = drl.ReplayMemory(self.replay_memory_size)
 
         # initially syn the policy and the target network (same parameters)
         self.target_dqn.load_state_dict(self.policy_dqn.state_dict())
 
         # set up the optimizer
-        self.optimizer = torch.optim.Adam(self.policy_dqn.parameters(), lr=self.learning_rate_a)
+        self.optimizer = torch.optim.Adam(self.policy_dqn.parameters(), lr=self.lr)
 
         rewards_per_episode = np.zeros(episodes)
 
@@ -197,9 +196,9 @@ class RBAMA():
         iterator = tqdm(range(episodes), desc="Training Instr") if pb else range(episodes)
 
         for i in iterator:
-            state, info = env.reset(random_init=random_init)  # Initialize to state 0
-            terminated = False      # True when agent falls in hole or reached goal
-            truncated = False       # True when agent takes more than 200 actions    
+            state, _ = env.reset(random_init=random_init)  
+            terminated = False      
+            truncated = False       
 
             while(not terminated and not truncated):
 
@@ -240,61 +239,57 @@ class RBAMA():
                     mini_batch = memory.sample(self.mini_batch_size)
                     self.optimize(mini_batch) 
                 
-                if step_count > self.network_sync_rate:
+                if step_count > self.sr:
                     self.target_dqn.load_state_dict(self.policy_dqn.state_dict())
                     step_count=0
 
-            # Keep track of the rewards collected per episode.
-            if reward != 0:
-                rewards_per_episode[i] = reward
-      
+            rewards_per_episode[i] += reward
 
             # reduce chance to randomly pick an action
-            k = 5
             epsilon=np.exp(-k * (i/episodes))
 
         env.close()
 
-        sum_rewards = np.zeros(episodes)
-        for x in range(episodes):
-            sum_rewards[x] = np.sum(rewards_per_episode[max(0, x-100):(x+1)])
+        sum_rewards = np.array([np.sum(rewards_per_episode[max(0, x-200):x+1]) for x in range(episodes)])
 
-        plot_training_progress(sum_rewards, agent_name, getattr(self, 'env_name', None))
+        plot_training_progress(sum_rewards, agent_name)
     
 
     """
-    uses a mini batch of experiences to update the agent's policy
+    use a mini batch of experiences to update the agent's policy
     """
     def optimize(self, mini_batch):
 
-        current_q_list = []
-        target_q_list = []
+        q_values = []
+        targets = []
 
         for state, action, new_state, reward, terminated in mini_batch:
-
             if terminated: 
                 target = torch.FloatTensor([reward])
             else:
                 with torch.no_grad():
                     target = torch.FloatTensor(
-                        reward + self.discount_factor_g * self.target_dqn(self.transformation(new_state)).max()
+                        reward + self.discount * self.target_dqn(self.transformation(new_state)).max()
                     )
 
-            current_q = self.policy_dqn(self.transformation(state))
-            current_q_list.append(current_q)
+            q_value = self.policy_dqn(self.transformation(state))
+            q_values.append(q_value)
 
-            target_q = self.target_dqn(self.transformation(state)) 
-            target_q[action] = target
-            target_q_list.append(target_q)
+            target = self.target_dqn(self.transformation(state)) 
+            target[action] = target
+            targets.append(target)
                 
-        loss = self.loss_fn(torch.stack(current_q_list), torch.stack(target_q_list))
+        loss = self.loss_fn(
+            torch.stack(q_values),
+            torch.stack(targets)
+        )
 
         self.optimizer.zero_grad()
         loss.backward()
         self.optimizer.step()
 
     """
-    trains the agent's reasoning
+    train the agent's reasoning
     """
     def train_reasons(self, episodes, env, judge=moral_judge.JudgePrioR(translator=translator.Translator()), random_init="positions"):
 
@@ -347,7 +342,7 @@ class RBAMA():
   
         return morally_permissible_actions
 
-"""reasoning agent with CNN for learning the instrumental policy"""
+"""reasoning agent integrating a CNN for learning the instrumental policy"""
 class RBAMA_CNN(RBAMA):
     def __init__(self, env):
         super().__init__(env)

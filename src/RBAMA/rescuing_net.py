@@ -156,7 +156,7 @@ class Rescuing():
             for x in range(counter_resc_episodes):
                 sum_rewards[x] = np.sum(rewards_per_episode[max(0, x-100):(x+1)])
 
-            plot_training_progress(sum_rewards, agent_name, getattr(self, 'env_name', None))
+            plot_training_progress(sum_rewards, agent_name)
             
 
     """

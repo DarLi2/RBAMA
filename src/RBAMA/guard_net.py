@@ -1,7 +1,5 @@
 from src.environments import registered_versions
-import gymnasium as gym
 import numpy as np
-import matplotlib.pyplot as plt
 import random
 import torch
 from tqdm import tqdm
@@ -26,9 +24,9 @@ def setup_on_bridge(agent_name):
     agent_info = RBAMA.get_agent_info(agent_name)
     env = agent_info["env"]
     if agent_info["agent_type"] == "waiting_agent":
-        agent = On_Bridge(env)
+        agent = Guard(env)
     elif agent_info["agent_type"] == "waiting_agent_cnn":
-        agent = WaitingCNN(env)
+        agent = Guard_CNN(env)
     elif agent_info["agent_type"] == "bandit_pushing":
         agent = Bandit_Pushing(env)
     initilize_modules(agent, agent_info)
@@ -46,7 +44,7 @@ def save_agent(agent, agent_name):
 
     torch.save(save_dict, file_path)
 
-class On_Bridge():
+class Guard():
     def __init__(self, env, lr = 0.001, sync_rate = 1000, replay_memory_size=1000, mini_batch_size= 32):
 
         self.env = env
@@ -91,7 +89,7 @@ class On_Bridge():
         k = 5 #hyperparameter controlling the epsilon decay rate
         memory = drl.ReplayMemory(self.replay_memory_size)
 
-        # initially syn the policy and the target network (same parameters)
+        # initially sync the policy and the target network (same parameters)
         self.target_dqn.load_state_dict(self.policy_dqn.state_dict())
 
         # count steps until policy and target network are synced
@@ -106,11 +104,9 @@ class On_Bridge():
 
             while(not terminated and not truncated):
                 state = self.transformation(state)
-                #action = env.action_space.sample()
 
-                # only activate net (and learning process) if there is a person standin on the bridge
+                # only activate the network (and use the sample for the training process) if there is a person standing on the bridge
                 if "B" in env.get_lables():
-                # Select action based on epsilon-greedy
                     if random.random() >= epsilon:
                         with torch.no_grad():
                             action = self.policy_dqn(state).argmax().item()
@@ -180,7 +176,7 @@ class On_Bridge():
         loss.backward()
         self.optimizer.step()
 
-class WaitingCNN(On_Bridge):
+class Guard_CNN(Guard):
     def __init__(self, env):
         super().__init__(env)
 
@@ -206,7 +202,7 @@ class WaitingCNN(On_Bridge):
     def transformation(self, observation):
         return torch.as_tensor(observation, dtype=torch.float32)
 
-class Bandit_Pushing(WaitingCNN):
+class Bandit_Pushing(Guard_CNN):
     def __init__(self, env):
         super().__init__(env)
         
@@ -261,7 +257,7 @@ class Bandit_Pushing(WaitingCNN):
         target_q_list = []
         
         for state, action, reward in mini_batch:
-            target = torch.FloatTensor([reward])  # No future reward considerations
+            target = torch.FloatTensor([reward])  # no future reward considerations
             
             current_q = self.policy_dqn(self.transformation(state))
             current_q_list.append(current_q)

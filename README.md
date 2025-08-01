@@ -1,17 +1,10 @@
-# Reason-Based Artificial Moral Agents - Prototyping an Architecture for Normative Compliance of Agentic Systems
+# Reason-Based Artificial Moral Agents - Prototyping a Neuro-Symbolic Architecture for Normative Compliance of Agentic Systems
 
-The RBAMA (Reason-Based Artificial Moral Agent) extends the reinforcement learning (RL) architecture by a reason-based normative control unit enforcing compliance with normative requirements. The architecture follows a neuro-symbolic approach, enabling meaningful human oversight by making norm-relevant considerations interpretable. This is achieved by grounding morally-relevant decisions in explicit normative reasoning and allowing the agent’s behavior to be refined through case-based feedback on its reasoning process.
+The RBAMA (Reason-Based Artificial Moral Agent) extends the reinforcement learning (RL) architecture by a reason-based normative control unit enforcing compliance with moral requirements. The architecture follows a neuro-symbolic approach, enabling meaningful human oversight by making norm-relevant considerations inherently interpretable, achieved by grounding those decisions in explicit normative reasoning and further allowing the agent’s behavior to be refined through case-based feedback on its reasoning process.
 
-This repository also includes a small grid-world environment designed to set up targeted test scenarios, in which potentially conflicted moral requirements arise. An agent navigating the environment may encounter situations where it faces a conflict between two moral obligations: avoiding harm by not pushing individuals into the water and fulfilling the duty to rescue those at risk of drowning.
-
-It implements an operational framework grounded in an agentic architecture originally proposed in
-Baum, K., Dargasz, L., Jahn, F., Gros, T. P., & Wolf, V. (2024). _Acting for the Right Reasons: Creating Reason-Sensitive Artificial Moral Agents_ ([View PDF](https://arxiv.org/abs/2409.15014)).
-
-The framework is further described in Dargasz, L. (2025). _Integrating Reason-Based Moral Decision-Making in the Reinforcement Learning Architecture_ ([View PDF](https://arxiv.org/abs/2507.15895)).
-
-Additionally, it includes an adaptation of the framework introduced by  
-Rodriguez-Soto, A., Serra, J., & Moral, P. D. (2021). _Guaranteeing the Learning of Ethical Behaviour through Multi-Objective Reinforcement Learning_ ([View PDF](https://www.iiia.csic.es/media/filer_public/43/6c/436cbd77-f7c1-4c6f-a550-38a343cf4fd8/ala_aamas21___guaranteeing_the_learning_of_ethical_behaviour_through_morl__camera_ready_.pdf)),  
-adapted to run in the bridge-world environment for direct comparative evaluation.
+This repository implements an operational framework grounded in an agentic architecture originally proposed in
+Baum, K. et al. (2024). ([paper](https://arxiv.org/abs/2409.15014)), and further developed in Dargasz, L. (2025). ([thesis](https://arxiv.org/abs/2507.15895)). Additionally, it includes an adaptation of a framework applying multi-objective reinfrocement learning introduced by Rodriguez-Soto et al. (2021) ([paper](https://www.iiia.csic.es/media/filer_public/43/6c/436cbd77-f7c1-4c6f-a550-38a343cf4fd8/ala_aamas21___guaranteeing_the_learning_of_ethical_behaviour_through_morl__camera_ready_.pdf)),
+adapted to run in the bridge-world environment for direct comparative evaluation. Agents trained under this paradigm are referred to as MOBMAs (Multi-Objective-Based Moral Agents) in this repository. Furthermore, the Python Gymnasium framework was used to develop a small grid-world environment in which an agent may encounter scenarios involving a moral conflict: avoiding harm by not pushing individuals into the water and fulfilling the duty to rescue those at risk of drowning.
 
 ## 🛠 Installation
 
@@ -30,14 +23,14 @@ adapted to run in the bridge-world environment for direct comparative evaluation
    conda activate RBAMA
    ```
 
-## 📝 Example Usage
+## ▶️ Example Usage
 
 <!-- add commands for training scripts here -->
 
-1. Train an RBAMA:
+1. Train an RBAMA on an instance of the bridge environment:
 
    ```bash
-   python scripts/RBAMA/training/complete_shielded.py bridge1_v1 30000 3000 3000 100 prioR
+   python scripts/RBAMA/training/complete.py bridge1_v1 30000 3000 3000 100 prioR
    ```
 
 2. Evaluate the RBAMA:
@@ -54,16 +47,54 @@ adapted to run in the bridge-world environment for direct comparative evaluation
    python scripts/eval/reasoning.py bridge1_v1modularR3000W30000I3000R100 --state_reset '[24, 31, 49, 49, 34]'
    ```
 
-## Results
+## 🤖 Features
 
-<img src="person_on_bridge.png" alt="My Screenshot" width="200"/>
-<img src="reasoning_waiting.png" alt="My Screenshot" width="200"/>
+1. Implementation of an environment built on the Python Gymnasium package, designed to yield moral conflicts
 
-<img src="drowning_person.png" alt="My Screenshot" width="200"/>
-<img src="reasoning_rescuing.png" alt="My Screenshot" width="200"/>
+2. Implementation of a prototpye of the **RBAMA (Reason-Based Moral Agent)** bridging **explicit normative reasoning** with reinforcement learning as a **data-driven AI method**
 
-<img src="moral_dilemma.png" alt="My Screenshot" width="200"/>
-<img src="reasoning_conflicted.png" alt="My Screenshot" width="200"/>
+   - symbolic processing via a formalized, logic-based decision-making framework
+   - the strengths of neural networks for learning efficient strategies
+
+3. Simulating the Feedback Process by integrating a **moral judge**
+
+   - a rule-based module that provides automized **case-based feedback**
+   - integration of the feedback process in the reinforcement learning pipeline and implementation of an update procedure for the agent's normative reasoning
+
+4. Adaptation of the approach proposed by Rodriguez-Soto et al. to the environment to enable experimental comparison
+
+## 📈 Results
+
+1. **Training of the RBAMA on an instance of the bridge environment:**
+
+   <img src="bridge1_v1instr.png" alt="Instrumental policy" width="300"/>
+
+   Instrumental policy training – agent learns to navigate to its goal
+
+   <img src="bridge1_v1resc.png" alt="Rescuing policy" width="300"/>
+
+   Rescuing policy training – agent learns to perform rescues
+
+   <img src="reason-theory.png" alt="Learned reason theory" width="200"/>
+
+   Learned reason theory
+
+2. **Visualizing the agent navigating the map alongside its reasoning process**
+
+   <img src="person_on_bridge.png" alt="My Screenshot" width="200"/>
+   <img src="reasoning_waiting.png" alt="My Screenshot" width="200"/>
+
+   The agent recognizes its moral obligation to ensure not to push the person off the bridge.
+
+   <img src="drowning_person.png" alt="My Screenshot" width="200"/>
+   <img src="reasoning_rescuing.png" alt="My Screenshot" width="200"/>
+
+   The agent recognizes its moral obligation to rescue the drowning person.
+
+   <img src="moral_dilemma.png" alt="My Screenshot" width="200"/>
+   <img src="reasoning_conflicted.png" alt="My Screenshot" width="200"/>
+
+   The agent recognizes a moral conflict and solves it through applying a priority order among its normative reasons.
 
 <!-- If making the code public add citation(?)
 

@@ -8,7 +8,7 @@ from src.environments.wrappers.multi_channel import Multi_Channel
 from src.environments.wrappers.random_drowning import Random_Drowning
 
 """
-Visualizes an environment with random actions, printing the action, reward, and state at each step.
+Visualizes an instance of the bridge environment with random actions, printing the action, reward, and state at each step.
 """
 
 def test_random(env, state_reset=None, random_init="no randomness"):

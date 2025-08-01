@@ -5,9 +5,9 @@ import matplotlib.pyplot as plt
 import os
 
 
-def plot_training_progress(sum_rewards, agent_name, env_name=None, save_folder='saved_plots', 
-                         title='Training Process', xlabel='Episodes', 
-                         ylabel='Sum of Rewards (last 100 episodes)'):
+def plot_training_progress(sum_rewards, agent_name, save_folder='saved_plots', 
+                         title='Progress', xlabel='Episodes', 
+                         ylabel='Aggregate Reward (Past 200 Episodes)'):
 
     plt.figure()
     plt.plot(sum_rewards)
@@ -20,8 +20,6 @@ def plot_training_progress(sum_rewards, agent_name, env_name=None, save_folder='
     
     if agent_name:
         filename = agent_name + '.png'
-    elif env_name:
-        filename = env_name + '.png'
     else:
         filename = 'training_plot.png'
     

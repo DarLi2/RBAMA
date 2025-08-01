@@ -1,6 +1,5 @@
 import gymnasium as gym
 import numpy as np
-import matplotlib.pyplot as plt
 import random
 import torch
 from tqdm import tqdm

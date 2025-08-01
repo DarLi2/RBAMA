@@ -1,7 +1,7 @@
 import torch
 from src.RBAMA import RBAMA
 from src.RBAMA import rescuing_net
-from src.RBAMA import waiting_net
+from src.RBAMA import guard_net
 import argparse
 import ast
 
@@ -19,7 +19,7 @@ def visualize_subnet(agent, env, state_reset=None, random_init="no randomness", 
             truncated = False                  
 
             while(not terminated and not truncated): 
-                if ("B" in env.get_lables() and isinstance(agent, waiting_net.On_Bridge)) or ("D" in env.get_lables() and isinstance(agent, rescuing_net.Rescuing)):
+                if ("B" in env.get_lables() and isinstance(agent, guard_net.Guard)) or ("D" in env.get_lables() and isinstance(agent, rescuing_net.Rescuing)):
                     with torch.no_grad():
                         #take an action that is conform with the agent's moral obligations according to its current reason theory
                         dnn_input = agent.transformation(state)  
