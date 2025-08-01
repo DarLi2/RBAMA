@@ -15,9 +15,8 @@ class ReasoningUnit():
         super().__init__()
         self.G = nx.DiGraph()
         self.action_space = action_space
-        self.waiting_net =  guard_net.Guard(env)
+            
         self.threshold_waiting = 0.8
-        self.rescuing_net = rescuing_net.Rescuing(env)
         self.chosen_scenario = None
         self.static_background_info = set() #situationally independant rules; e.g. world knowledge (e.g. walking across the bridge -> arriving at the other side of the bridge); not used for the current implementation
 
@@ -61,7 +60,6 @@ class ReasoningUnit():
     log the agent's current reason theory
     """
     def log_edges_with_data(self):
-        self.logger.info("Current reason theory:")
         for u, v, priority in self.G.edges(data=True):
             self.logger.info(f"Updated Edges: \nEdge from {u} to {v} with priority order: {priority}")
 
@@ -145,8 +143,6 @@ class ReasoningUnit():
         action_space = [action for action in range(self.action_space)]
         morally_impermissible = []
 
-        action_space = [action for action in range(self.action_space)]
-
         #if the agent has a moral obligation to rescue the drowning person, all actions but the preferred action of the rescue network are impermissible
         if 'R' in moral_obligations:
             moral_R = self.get_morally_optimal_action("R", state)
@@ -164,7 +160,6 @@ class ReasoningUnit():
     def get_morally_optimal_action(self, obligation, state):   
         if obligation == "R":
             dnn_input = self.rescuing_net.transformation(state)
-            # Use the trained policy DQN to predict the Q-values for each action in the current state
             with torch.no_grad():
                 q_values = self.rescuing_net.policy_dqn(dnn_input)
             moral_action = torch.argmax(q_values).item()
@@ -174,9 +169,9 @@ class ReasoningUnit():
     def get_morally_impermissible_actions(self, obligation, state):
         morally_impermissible_actions = []
         if obligation == "C":
-            dnn_input = self.waiting_net.transformation(state)
+            dnn_input = self.guard_net.transformation(state)
             with torch.no_grad():
-                q_values = self.waiting_net.policy_dqn(dnn_input)
+                q_values = self.guard_net.policy_dqn(dnn_input)
             for q_value in q_values:
                 if q_value >= self.threshold_waiting: 
                     actions_exceeding_theshold = torch.where(q_values == q_value)[0].tolist()

@@ -17,15 +17,16 @@ def get_agent_info(agent_name):
     return agent_info
 
 def initilize_modules(agent, agent_info):
-    agent.policy_dqn = agent_info["policy_net"]
-    agent.target_dqn = agent_info["target_net"]
+    agent.policy_dqn.load_state_dict(agent_info["policy_state_dict"])
+    if agent.target_dqn is not None:  
+        agent.target_dqn.load_state_dict(agent_info["target_state_dict"])
 
 def setup_on_bridge(agent_name):
     agent_info = RBAMA.get_agent_info(agent_name)
     env = agent_info["env"]
-    if agent_info["agent_type"] == "waiting_agent":
+    if agent_info["agent_type"] == "guard":
         agent = Guard(env)
-    elif agent_info["agent_type"] == "waiting_agent_cnn":
+    elif agent_info["agent_type"] == "guard_cnn":
         agent = Guard_CNN(env)
     elif agent_info["agent_type"] == "bandit_pushing":
         agent = Bandit_Pushing(env)
@@ -34,11 +35,15 @@ def setup_on_bridge(agent_name):
 
 def save_agent(agent, agent_name):
     save_dict = {
-        "policy_net": agent.policy_dqn,
-        "target_net": agent.target_dqn,
+        "policy_state_dict": agent.policy_dqn.state_dict(),
         "env": agent.env,
         "agent_type": agent.agent_type
     }
+    
+    # Only save target network state dict if it exists (Bandit_Pushing doesn't have one)
+    if hasattr(agent, 'target_dqn') and agent.target_dqn is not None:
+        save_dict["target_state_dict"] = agent.target_dqn.state_dict()
+    
     dir_name = RBAMA.get_dir_name()
     file_path= os.path.join(dir_name, agent_name + ".pth")
 
@@ -48,7 +53,7 @@ class Guard():
     def __init__(self, env, lr = 0.001, sync_rate = 1000, replay_memory_size=1000, mini_batch_size= 32):
 
         self.env = env
-        self.agent_type = "waiting_agent"
+        self.agent_type = "guard_agent"
 
         #set up hyperparameters for DRL
         self.learning_rate_a = lr         
@@ -180,7 +185,7 @@ class Guard_CNN(Guard):
     def __init__(self, env):
         super().__init__(env)
 
-        self.agent_type = "waiting_agent_cnn"
+        self.agent_type = "guard_cnn"
         self.num_channels = self.env.observation_space.shape[0]  
         
         self.grid_height = env.bridge_map.height
@@ -271,7 +276,3 @@ class Bandit_Pushing(Guard_CNN):
         self.optimizer.zero_grad()
         loss.backward()
         self.optimizer.step()
-
-
-
-

@@ -4,8 +4,8 @@ import gymnasium as gym
 from src.environments.wrappers.multi_channel import Multi_Channel
 from src.environments.wrappers.random_drowning import Random_Drowning
 from src.environments.wrappers.partial_observability import Partial_Observability
-from scripts.RBAMA.training.modular_training import train_guard, train_rescuing, train_policy_shielded, train_reasoning
-from src.RBAMA import waiting_net
+from scripts.RBAMA.training.modular_training import train_guard, train_rescuing, train_policy_shielded, train_conformance
+from src.RBAMA import guard_net
 import argparse
 from scripts.utils import create_judge
 import logging
@@ -39,9 +39,9 @@ if __name__ == '__main__':
 
     judge = create_judge(args.judge)
 
-    guard_net_name =  env_id + "wait" + str(args.training_episodes_guard)
+    guard_net_name =  env_id + "guard" + str(args.training_episodes_guard)
     train_guard(env, args.training_episodes_guard, guard_net_name)
-    guard_net, _ = waiting_net.setup_on_bridge(guard_net_name)
+    guard_net, _ = guard_net.setup_on_bridge(guard_net_name)
     logging.info("Guard network trained: %s", guard_net_name)
 
     rescuing_net_name =  env_id + "resc" + str(args.training_episodes_resc)
@@ -51,5 +51,5 @@ if __name__ == '__main__':
     logging.info("Instrumental policy trained: %s", instrumental_net_name)
     train_rescuing(env, args.training_episodes_resc, rescuing_net_name)
     logging.info("Rescuing network trained: %s", rescuing_net_name)
-    train_reasoning(env,env_id, judge, rescuing_net_name, guard_net_name, instrumental_net_name, args.training_episodes_resc, args.training_episodes_guard, args.training_episodes_instr, args.training_episodes_reas)
+    train_conformance(env,env_id, judge, rescuing_net_name, guard_net_name, instrumental_net_name, args.training_episodes_resc, args.training_episodes_guard, args.training_episodes_instr, args.training_episodes_reas)
     logging.info("Reasoning trained")

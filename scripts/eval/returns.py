@@ -7,7 +7,7 @@ from tqdm import tqdm
 
 def eval_resoning_agent_returns(agent, env, n_episodes, state_reset=None, random_init="no randomness", seed=None):
     agent.policy_dqn.eval()  
-    agent.reasoning_unit.waiting_net.policy_dqn.eval()   
+    agent.reasoning_unit.guard_net.policy_dqn.eval()
     agent.reasoning_unit.rescuing_net.policy_dqn.eval() 
     reward_instr = 0
     reward_resc = 0

@@ -1,5 +1,5 @@
-from src.RBAMA import waiting_net
-from src.RBAMA.waiting_net import Bandit_Pushing
+from src.RBAMA import guard_net
+from src.RBAMA.guard_net import Bandit_Pushing
 import gymnasium as gym
 from src.environments.wrappers.multi_channel import Multi_Channel
 from src.environments.wrappers.random_drowning import Random_Drowning
@@ -32,6 +32,6 @@ if __name__ == '__main__':
     agent.train(training_episodes, agent_name)
 
     # Save the trained waiting net
-    waiting_net.save_agent(agent, agent_name)
+    guard_net.save_agent(agent, agent_name)
 
 

@@ -27,7 +27,7 @@ adapted to run in the bridge-world environment for direct comparative evaluation
 
 <!-- add commands for training scripts here -->
 
-1. Train an RBAMA on an instance of the bridge environment:
+1. Train an RBAMA on an instance (bridge1_v1) of the bridge environment:
 
    ```bash
    python scripts/RBAMA/training/complete.py bridge1_v1 30000 3000 3000 100 prioR

@@ -13,6 +13,10 @@ from src.utils import drl
 from src.utils.drl import CNN_DQN
 from src.environments.wrappers.multi_channel import Multi_Channel
 from src.utils.plotting import plot_training_progress
+from src.RBAMA import guard_net, rescuing_net
+import logging
+
+logger = logging.getLogger(__name__)
 
 """
 methods for saving and loading an agent
@@ -24,9 +28,27 @@ def get_agent_info(agent_name):
     return agent_info
 
 def load_modules(agent, agent_info):
-    agent.policy_dqn = agent_info["state_dict"]
-    agent.target_dqn = agent_info["state_dict"]
-    agent.reasoning_unit = agent_info["reasoning_unit"]
+    agent.policy_dqn.load_state_dict(agent_info["policy_state_dict"])
+    agent.target_dqn.load_state_dict(agent_info["target_state_dict"])
+    
+    if "reasoning_unit_guard_state_dict" in agent_info and "reasoning_unit_rescuing_state_dict" in agent_info:
+        guard_net_type = agent_info.get("guard_net_type", "Guard")
+        rescuing_net_type = agent_info.get("rescuing_net_type", "Rescuing")
+        
+        if guard_net_type == "Bandit_Pushing":
+            agent.reasoning_unit.guard_net = guard_net.Bandit_Pushing(agent.env)
+        elif guard_net_type == "Guard_CNN":
+            agent.reasoning_unit.guard_net = guard_net.Guard_CNN(agent.env)
+        else:  
+            agent.reasoning_unit.guard_net = guard_net.Guard(agent.env)
+            
+        if rescuing_net_type == "RescuingCNN":
+            agent.reasoning_unit.rescuing_net = rescuing_net.RescuingCNN(agent.env)
+        else:  
+            agent.reasoning_unit.rescuing_net = rescuing_net.Rescuing(agent.env)
+        
+        agent.reasoning_unit.guard_net.policy_dqn.load_state_dict(agent_info["reasoning_unit_guard_state_dict"])
+        agent.reasoning_unit.rescuing_net.policy_dqn.load_state_dict(agent_info["reasoning_unit_rescuing_state_dict"])
 
 def setup_reasoning_agent(agent_name):
     agent_info = get_agent_info(agent_name)
@@ -43,15 +65,24 @@ def get_dir_name():
     return os.path.join(current_file_dir, 'agents')
 
 def save_agent(agent, agent_name):
+    
     save_dict = {
-        "state_dict": agent.policy_dqn,
+        "policy_state_dict": agent.policy_dqn.state_dict(),
+        "target_state_dict": agent.target_dqn.state_dict(),
         "env": agent.env,
-        "agent_type": agent.agent_type,
-        "reasoning_unit": agent.reasoning_unit
+        "agent_type": agent.agent_type
     }
+    if getattr(agent.reasoning_unit, "guard_net", None):
+        save_dict["reasoning_unit_guard_state_dict"] = agent.reasoning_unit.guard_net.policy_dqn.state_dict()
+        guard_net_type = type(agent.reasoning_unit.guard_net).__name__
+        save_dict["guard_net_type"] = guard_net_type
+    if getattr(agent.reasoning_unit, "rescuing_net", None):
+        save_dict["reasoning_unit_rescuing_state_dict"] = agent.reasoning_unit.rescuing_net.policy_dqn.state_dict()
+        rescuing_net_type = type(agent.reasoning_unit.rescuing_net).__name__
+        save_dict["rescuing_net_type"] = rescuing_net_type
     dir_name = get_dir_name()
     file_path= os.path.join(dir_name, agent_name + ".pth")
-
+    logger.info(f"Agent saved to {file_path}")
     torch.save(save_dict, file_path)
 
 """implementation of the RBAMA (reason-based moral agent)"""
@@ -80,6 +111,8 @@ class RBAMA():
         
         #set tup the resaoning_unit 
         self.reasoning_unit = reasoning_unit.ReasoningUnit(env, self.num_actions)
+
+        self.logger = logging.getLogger(__name__)
 
 
     """
@@ -203,10 +236,6 @@ class RBAMA():
             while(not terminated and not truncated):
 
                 morally_permissible_actions = self.reasoning_unit.primitive_actions("C", state)
-                test =  list(range(env.action_space.n))
-                if morally_permissible_actions != list(range(env.action_space.n)):
-                    pass
-                # if there is only one morally permissible action, bypass the NN that optimizes for achieving the instrumental policy and execute the action directly
                 state_transformed = self.transformation(state)
                 if random.random() < epsilon:
                 # select random action
@@ -260,10 +289,11 @@ class RBAMA():
     """
     def optimize(self, mini_batch):
 
-        q_values = []
-        targets = []
+        current_q_list = []
+        target_q_list = []
 
         for state, action, new_state, reward, terminated in mini_batch:
+
             if terminated: 
                 target = torch.FloatTensor([reward])
             else:
@@ -272,17 +302,14 @@ class RBAMA():
                         reward + self.discount * self.target_dqn(self.transformation(new_state)).max()
                     )
 
-            q_value = self.policy_dqn(self.transformation(state))
-            q_values.append(q_value)
+            current_q = self.policy_dqn(self.transformation(state))
+            current_q_list.append(current_q)
 
-            target = self.target_dqn(self.transformation(state)) 
-            target[action] = target
-            targets.append(target)
+            target_q = self.target_dqn(self.transformation(state)) 
+            target_q[action] = target
+            target_q_list.append(target_q)
                 
-        loss = self.loss_fn(
-            torch.stack(q_values),
-            torch.stack(targets)
-        )
+        loss = self.loss_fn(torch.stack(current_q_list), torch.stack(target_q_list))
 
         self.optimizer.zero_grad()
         loss.backward()
@@ -336,8 +363,6 @@ class RBAMA():
         #get the action types toward whose realization the agent has an all things considered normative reason (the agent's moral obligations)
         lables = env.get_lables()
         moral_obligations = self.reasoning_unit.moral_obligations(lables, state)
-        if moral_obligations:
-            pass
         morally_permissible_actions = self.reasoning_unit.primitive_actions(moral_obligations, state)
   
         return morally_permissible_actions

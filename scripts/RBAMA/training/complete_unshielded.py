@@ -6,7 +6,7 @@ from src.environments.wrappers.random_drowning import Random_Drowning
 from src.environments.wrappers.partial_observability import Partial_Observability
 from src.RBAMA import moral_judge
 from src.RBAMA import translator
-from scripts.RBAMA.training.modular_training import train_guard, train_rescuing, train_instrumental_policy, train_reasoning
+from scripts.RBAMA.training.modular_training import train_guard, train_rescuing, train_instrumental_policy, train_conformance
 from scripts.utils import create_judge
 import argparse
 import logging
@@ -40,15 +40,15 @@ if __name__ == '__main__':
 
     judge = create_judge(args.judge)
 
-    guard_net_name =  env_id + "wait" + str(args.training_episodes_guard)
+    guard_net_name =  env_id + "guard" + str(args.training_episodes_guard)
     rescuing_net_name =  env_id + "resc" + str(args.training_episodes_resc)
     instrumental_net_name = env_id +"instr" + str(args.training_episodes_instr)
 
+    train_guard(env, args.training_episodes_guard, guard_net_name)
+    logging.info("Guard trained: %s", guard_net_name)
     train_instrumental_policy(env, args.training_episodes_instr, instrumental_net_name)
     logging.info("Instrumental policy trained: %s", instrumental_net_name)
-    train_guard(env, args.training_episodes_guard, guard_net_name)
-    logging.info("Guard network trained: %s", guard_net_name)
     train_rescuing(env, args.training_episodes_resc, rescuing_net_name)
-    logging.info("Rescuing network trained: %s", rescuing_net_name)
-    train_reasoning(env,env_id, judge, rescuing_net_name, guard_net_name, instrumental_net_name, args.training_episodes_resc, args.training_episodes_guard, args.training_episodes_instr, args.training_episodes_reas)
+    logging.info("Rescuing policy trained: %s", rescuing_net_name)
+    train_conformance(env,env_id, judge, rescuing_net_name, guard_net_name, instrumental_net_name, args.training_episodes_resc, args.training_episodes_guard, args.training_episodes_instr, args.training_episodes_reas)
     logging.info("Reasoning trained")

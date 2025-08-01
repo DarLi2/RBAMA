@@ -4,8 +4,10 @@ from src.environments.wrappers.random_drowning import Random_Drowning
 from src.environments.wrappers.partial_observability import Partial_Observability
 import gymnasium as gym
 import argparse
+import logging
 
 if __name__ == '__main__':
+    logging.basicConfig(level=logging.INFO, format='[%(asctime)s][%(name)s] %(message)s', datefmt='%H:%M:%S')
     parser = argparse.ArgumentParser(description="Train an RBAMA agent in a selected environment with optional wrappers.")
 
     parser.add_argument('env_id', type=str, help='Gym environment ID')

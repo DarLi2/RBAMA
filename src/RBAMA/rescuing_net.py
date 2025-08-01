@@ -5,9 +5,7 @@ from torch import nn
 import os
 from src.utils.drl import DQN_2hiddenlayers, CNN_DQN, ReplayMemory
 from src.RBAMA import RBAMA
-from src.environments.wrappers.multi_channel import Multi_Channel
 from src.utils.plotting import plot_training_progress
-
 from src.environments import registered_versions
 
 def get_agent_info(agent_name):
@@ -17,8 +15,8 @@ def get_agent_info(agent_name):
     return agent_info
 
 def initilize_modules(agent, agent_info):
-    agent.policy_dqn = agent_info["policy_net"]
-    agent.target_dqn = agent_info["target_net"]
+    agent.policy_dqn.load_state_dict(agent_info["policy_state_dict"])
+    agent.target_dqn.load_state_dict(agent_info["target_state_dict"])
 
 def setup_rescuing_agent(agent_name):
     agent_info = RBAMA.get_agent_info(agent_name)
@@ -32,8 +30,8 @@ def setup_rescuing_agent(agent_name):
 
 def save_agent(agent, agent_name):
     save_dict = {
-        "policy_net": agent.policy_dqn,
-        "target_net": agent.target_dqn,
+        "policy_state_dict": agent.policy_dqn.state_dict(),
+        "target_state_dict": agent.target_dqn.state_dict(),
         "env": agent.env,
         "agent_type": agent.agent_type
     }
@@ -222,4 +220,3 @@ class RescuingCNN(Rescuing):
             stride=stride,
             padding=padding
         )
-
