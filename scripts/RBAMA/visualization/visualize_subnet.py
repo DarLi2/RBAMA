@@ -37,7 +37,7 @@ def main():
     
     parser.add_argument('agent_name', type=str, help="Name of the trained agent to load")
     parser.add_argument('subnet_type', type=str, help="Name of the subnet type to visualize ('rescuing', 'guard')")
-    parser.add_argument('--state_reset', type=ast.literal_eval, default=None, help="Comma-separated values specifying the positions of the agent and each person on the flattened map, following the pattern: [agent_position, position_person_id_1, position_person_id_2, position_person_id_3, position_person_id_4]")
+    parser.add_argument('--state_reset', type=ast.literal_eval, default=None, help="List of values specifying the positions of the agent and each person on the flattened map, following the pattern: [agent_position, position_person_id_1, position_person_id_2, position_person_id_3, position_person_id_4]")
     parser.add_argument('--random_init', type=str, default="positions", help="Random initialization mode (default: 'positions'). Other values: 'no randomness', 'positions'")
     
     args = parser.parse_args()
@@ -55,7 +55,6 @@ def main():
         subnet= agent.reasoning_unit.guard_net
 
     visualize_subnet(subnet, training_env, state_reset=state_reset, random_init=args.random_init)
-
 
 if __name__ == '__main__':
     main()

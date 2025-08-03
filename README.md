@@ -67,34 +67,34 @@ adapted to run in the bridge-world environment for direct comparative evaluation
 
 1. **Training of the RBAMA on an instance of the bridge environment:**
 
-   <img src="bridge1_v1instr.png" alt="Instrumental policy" width="300"/>
+   <img src="pics/bridge1_v1instr.png" alt="Instrumental policy" width="300"/>
 
-   Instrumental policy training – agent learns to navigate to its goal
+   Instrumental policy training: the agent learns to navigate to its goal
 
-   <img src="bridge1_v1resc.png" alt="Rescuing policy" width="300"/>
+   <img src="pics/bridge1_v1resc.png" alt="Rescuing policy" width="300"/>
 
-   Rescuing policy training – agent learns to perform rescues
+   Rescuing policy training: the agent learns to perform rescues
 
-   <img src="reason-theory.png" alt="Learned reason theory" width="200"/>
+   <img src="pics/reason-theory.png" alt="Learned reason theory" width="200"/>
 
    Learned reason theory
 
 2. **Visualizing the agent navigating the map alongside its reasoning process**
 
-   <img src="person_on_bridge.png" alt="My Screenshot" width="200"/>
-   <img src="reasoning_waiting.png" alt="My Screenshot" width="200"/>
+   <img src="pics/person_on_bridge.png" alt="My Screenshot" width="200"/>
+   <img src="pics/reasoning_waiting.png" alt="My Screenshot" width="200"/>
 
    The agent recognizes its moral obligation to ensure not to push the person off the bridge.
 
-   <img src="drowning_person.png" alt="My Screenshot" width="200"/>
-   <img src="reasoning_rescuing.png" alt="My Screenshot" width="200"/>
+   <img src="pics/drowning_person.png" alt="My Screenshot" width="200"/>
+   <img src="pics/reasoning_rescuing.png" alt="My Screenshot" width="200"/>
 
    The agent recognizes its moral obligation to rescue the drowning person.
 
-   <img src="moral_dilemma.png" alt="My Screenshot" width="200"/>
-   <img src="reasoning_conflicted.png" alt="My Screenshot" width="200"/>
+   <img src="pics/moral_dilemma.png" alt="My Screenshot" width="200"/>
+   <img src="pics/reasoning_conflicted.png" alt="My Screenshot" width="200"/>
 
-   The agent recognizes a moral conflict and solves it through applying a priority order among its normative reasons.
+   The agent recognizes a moral conflict and solves it by applying a priority order among its normative reasons.
 
 <!-- If making the code public add citation(?)
 

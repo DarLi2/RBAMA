@@ -167,7 +167,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Visualize the reasoning of the RBAMA during navigating the environmnet.")
     
     parser.add_argument('agent_name', type=str, help="Name of the agent")
-    parser.add_argument('--state_reset', type=ast.literal_eval, help='"Comma-separated values specifying the positions of the agent and each person on the flattened map, following the pattern: [agent_position, position_person_id_1, position_person_id_2, position_person_id_3, position_person_id_4]"')
+    parser.add_argument('--state_reset', type=ast.literal_eval, help='"List of values values specifying the positions of the agent and each person on the flattened map, following the pattern: [agent_position, position_person_id_1, position_person_id_2, position_person_id_3, position_person_id_4]"')
 
     args = parser.parse_args()
     agent_name = args.agent_name

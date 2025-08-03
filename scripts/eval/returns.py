@@ -3,7 +3,7 @@ import torch
 from src.environments import registered_versions, bridge_person
 from tqdm import tqdm
 
-"""evaluation in terms of return values for the RBAMA"""
+"""evaluation in terms of return values for the RBAMA; also counts the number of times the agent solves the moral task by prioritizing pushing a person off the bridge over rescuing a drowning person"""
 
 def eval_resoning_agent_returns(agent, env, n_episodes, state_reset=None, random_init="no randomness", seed=None):
     agent.policy_dqn.eval()  
@@ -24,7 +24,6 @@ def eval_resoning_agent_returns(agent, env, n_episodes, state_reset=None, random
         terminated = False     
         truncated = False   
 
-        # training loop
         while(not terminated and not truncated): 
             for person in env.persons:
                 if person.status == bridge_person.Status.IN_WATER_AT_RISK:
@@ -51,7 +50,6 @@ def eval_resoning_agent_returns(agent, env, n_episodes, state_reset=None, random
                         if "D" in env.get_lables() and 'C' not in agent.reasoning_unit.moral_obligations(env.get_lables(), state):
                             pushing_lower_order = True    
 
-            # execute the action
             state,reward,terminated,truncated,_ = env.step(action)
 
             reward_instr += reward[0]

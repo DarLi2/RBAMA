@@ -30,25 +30,7 @@ def get_agent_info(agent_name):
 def load_modules(agent, agent_info):
     agent.policy_dqn.load_state_dict(agent_info["policy_state_dict"])
     agent.target_dqn.load_state_dict(agent_info["target_state_dict"])
-    
-    if "reasoning_unit_guard_state_dict" in agent_info and "reasoning_unit_rescuing_state_dict" in agent_info:
-        guard_net_type = agent_info.get("guard_net_type", "Guard")
-        rescuing_net_type = agent_info.get("rescuing_net_type", "Rescuing")
-        
-        if guard_net_type == "Bandit_Pushing":
-            agent.reasoning_unit.guard_net = guard_net.Bandit_Pushing(agent.env)
-        elif guard_net_type == "Guard_CNN":
-            agent.reasoning_unit.guard_net = guard_net.Guard_CNN(agent.env)
-        else:  
-            agent.reasoning_unit.guard_net = guard_net.Guard(agent.env)
-            
-        if rescuing_net_type == "RescuingCNN":
-            agent.reasoning_unit.rescuing_net = rescuing_net.RescuingCNN(agent.env)
-        else:  
-            agent.reasoning_unit.rescuing_net = rescuing_net.Rescuing(agent.env)
-        
-        agent.reasoning_unit.guard_net.policy_dqn.load_state_dict(agent_info["reasoning_unit_guard_state_dict"])
-        agent.reasoning_unit.rescuing_net.policy_dqn.load_state_dict(agent_info["reasoning_unit_rescuing_state_dict"])
+    agent.reasoning_unit = agent_info["reasoning_unit"]
 
 def setup_reasoning_agent(agent_name):
     agent_info = get_agent_info(agent_name)
@@ -73,14 +55,6 @@ def save_agent(agent, agent_name):
         "agent_type": agent.agent_type,
         "reasoning_unit": agent.reasoning_unit
     }
-    if getattr(agent.reasoning_unit, "guard_net", None):
-        save_dict["reasoning_unit_guard_state_dict"] = agent.reasoning_unit.guard_net.policy_dqn.state_dict()
-        guard_net_type = type(agent.reasoning_unit.guard_net).__name__
-        save_dict["guard_net_type"] = guard_net_type
-    if getattr(agent.reasoning_unit, "rescuing_net", None):
-        save_dict["reasoning_unit_rescuing_state_dict"] = agent.reasoning_unit.rescuing_net.policy_dqn.state_dict()
-        rescuing_net_type = type(agent.reasoning_unit.rescuing_net).__name__
-        save_dict["rescuing_net_type"] = rescuing_net_type
     dir_name = get_dir_name()
     file_path= os.path.join(dir_name, agent_name + ".pth")
     logger.info(f"Agent saved to {file_path}")

@@ -39,7 +39,7 @@ if __name__ == '__main__':
     
     parser.add_argument('env_id', type=str, help='Gym environment ID')
     parser.add_argument('--random_init', type=str, default='no randomness', help='Random initialization type for reset (e.g., "positions", "no randomness").')
-    parser.add_argument('--state_reset', type=ast.literal_eval, help='"Comma-separated values specifying the positions of the agent and each person on the flattened map, following the pattern: [agent_position, position_person_id_1, position_person_id_2, position_person_id_3, position_person_id_4]"')
+    parser.add_argument('--state_reset', type=ast.literal_eval, help='"List of values specifying the positions of the agent and each person on the flattened map, following the pattern: [agent_position, position_person_id_1, position_person_id_2, position_person_id_3, position_person_id_4]"')
 
     # Wrappers
     parser.add_argument('--multi_channel', action='store_true', help='Apply the Multi_Channel wrapper.')
