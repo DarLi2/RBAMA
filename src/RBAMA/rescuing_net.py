@@ -69,7 +69,7 @@ class Rescuing():
     """
     trains the agent's policy 
     """
-    def train(self, episodes, agent_name, env=None, plot = True, random_init = "positions"):
+    def train(self, episodes, agent_name, env=None, random_init = "positions"):
 
         if not env:
             env = self.env
@@ -148,13 +148,11 @@ class Rescuing():
 
 
         env.close()
+        sum_rewards = np.zeros(counter_resc_episodes)
+        for x in range(counter_resc_episodes):
+            sum_rewards[x] = np.sum(rewards_per_episode[max(0, x-200):(x+1)])
 
-        if plot == True:
-            sum_rewards = np.zeros(counter_resc_episodes)
-            for x in range(counter_resc_episodes):
-                sum_rewards[x] = np.sum(rewards_per_episode[max(0, x-100):(x+1)])
-
-            plot_training_progress(sum_rewards, agent_name)
+        plot_training_progress(sum_rewards, agent_name)
             
 
     """

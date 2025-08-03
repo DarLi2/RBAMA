@@ -353,7 +353,6 @@ class RBAMA_CNN(RBAMA):
         self.grid_height = env.bridge_map.height
         self.grid_width = env.bridge_map.width
 
-        # set up of CNNs
         self.policy_dqn = CNN_DQN(
             input_channels=self.num_channels,
             grid_height=self.grid_height,

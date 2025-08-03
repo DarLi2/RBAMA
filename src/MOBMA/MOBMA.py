@@ -6,6 +6,7 @@ from tqdm import tqdm
 from torch import nn
 import os
 from collections import OrderedDict
+import matplotlib.pyplot as plt
 from src.environments import registered_versions
 from src.MOBMA.ethical_momdp_wrapper import Ethical_MOMDP_Wrapper
 from src.environments.wrappers.multi_channel import Multi_Channel
@@ -13,6 +14,7 @@ from src.utils.drl import CNN_DQN
 from src.utils import drl
 import torch
 import torch.nn as nn
+from src.utils.plotting import plot_training_progress
 
 def get_dir_name():
     current_file_dir = os.path.dirname(os.path.abspath(__file__)) 
@@ -158,23 +160,9 @@ class DRL_agent():
         #create a plot for the training process (average rewward per episode)
         sum_rewards = np.zeros(episodes)
         for x in range(episodes):
-            sum_rewards[x] = np.sum(rewards_per_episode[max(0, x-100):(x+1)])
+            sum_rewards[x] = np.sum(rewards_per_episode[max(0, x-200):(x+1)])
 
-        plt.figure()
-        plt.plot(sum_rewards)
-        plt.title('Training Process')
-        plt.xlabel('Episodes')
-        plt.ylabel('Sum of Rewards (last 100 episodes)')
-        
-        #save the plot
-        save_folder = 'saved_plots'  
-        if not os.path.exists(save_folder):
-            os.makedirs(save_folder)
-        if agent_name:
-            save_path = os.path.join(save_folder, agent_name + '.png')
-        else:
-            save_path = os.path.join(save_folder, self.env_name + '.png')
-        plt.savefig(save_path)
+        plot_training_progress(sum_rewards, agent_name)
 
     # update policy 
     def optimize(self, mini_batch):
@@ -228,6 +216,3 @@ class DRL_CNN(DRL_agent):
             grid_width=self.grid_width,
             num_actions=self.num_actions
         )
-
-
-

@@ -8,9 +8,9 @@ from src.environments.state_space_estimation import state_space_estimation
 from src.environments.bridge_person import Person_Moving, Person_Static
 
 class Ethical_MOMDP_Wrapper(gym.Wrapper):
-    def __init__(self, env: gym.Env, obs_config, e_w = 1):
+    def __init__(self, env, obs_config, e_w = 1):
         super().__init__(env)
-        assert obs_config in ["CHVI", "scalarized"], "invalid obs_config."
+        assert obs_config in ["CHVI", "scalarized", "None"], "invalid obs_config."
         self.obs_config = obs_config
         self.unwrapped.set_reward_type("MO")
         self.weights = [1,e_w]
@@ -52,6 +52,8 @@ class Ethical_MOMDP_Wrapper(gym.Wrapper):
     
     def step(self, action):
         observation, reward, terminated, truncated, info = self.env.step(action)
+        if self.obs_config == "None":
+            return  observation, reward, terminated, truncated, info
         reward = [reward[0], reward[1] + reward[2]]
         if self.obs_config == "CHVI":
             return self.get_obs_CHVI(), reward, terminated, False, info

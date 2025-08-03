@@ -74,7 +74,7 @@ def eval_MORL_agent(agent, env, n_episodes, state_reset=None, random_init="no ra
     in_water_sum = 0
 
     env.set_reward_type("MO")
-    #env.set_render_mode("human")
+    env.obs_config = "None"
     for _ in tqdm(range(n_episodes)):
         in_water = False
         state_history = []
