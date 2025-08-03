@@ -41,20 +41,20 @@ adapted to run in the bridge-world environment for direct comparative evaluation
    python scripts/eval/returns_RBAMA.py bridge1_v1modularR3000W30000I3000R100 1000
    ```
 
-   - by visualizing its reasoning processing in a moral conflict situation:
+   - by visualizing its moral decision-making:
 
    ```bash
-   python scripts/eval/reasoning.py bridge1_v1modularR3000W30000I3000R100 --state_reset '[24, 31, 49, 49, 34]'
+   python scripts/eval/reasoning.py bridge1_v1modularR3000W30000I3000R100 --state_reset '[17, 24, 49, 49, 40]'
    ```
 
 ## 🤖 Features
 
 1. Implementation of an environment built on the Python Gymnasium package, designed to yield moral conflicts
 
-2. Implementation of a prototpye of the **RBAMA (Reason-Based Moral Agent)** bridging **explicit normative reasoning** with reinforcement learning as a **data-driven AI method**
+2. Implementation of a prototpye of the **RBAMA (Reason-Based Moral Agent)** bridging **explicit normative reasoning** with **reinforcement learning** as a data-driven AI method
 
    - symbolic processing via a formalized, logic-based decision-making framework
-   - the strengths of neural networks for learning efficient strategies
+   - training of neural networks for learning efficient strategies
 
 3. Simulating the Feedback Process by integrating a **moral judge**
 
