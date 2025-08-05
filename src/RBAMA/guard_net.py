@@ -40,12 +40,13 @@ def save_agent(agent, agent_name):
         "agent_type": agent.agent_type
     }
     
-    # Only save target network state dict if it exists (Bandit_Pushing doesn't have one)
+    # only save target network state dict if it exists (Bandit_Pushing doesn't have one)
     if hasattr(agent, 'target_dqn') and agent.target_dqn is not None:
         save_dict["target_state_dict"] = agent.target_dqn.state_dict()
     
     dir_name = RBAMA.get_dir_name()
     file_path= os.path.join(dir_name, agent_name + ".pth")
+    os.makedirs(dir_name, exist_ok=True)
 
     torch.save(save_dict, file_path)
 

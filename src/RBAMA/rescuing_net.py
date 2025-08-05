@@ -37,6 +37,7 @@ def save_agent(agent, agent_name):
     }
     dir_name = RBAMA.get_dir_name()
     file_path= os.path.join(dir_name, agent_name + ".pth")
+    os.makedirs(dir_name, exist_ok=True)
 
     torch.save(save_dict, file_path)
 
